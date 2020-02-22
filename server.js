@@ -2,14 +2,17 @@ const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const mongoose = require("mongoose");
+const moment = require("moment");
 let users = [];
 let messages = [];
+var timenow = moment().format('LTS');
 
 mongoose.connect("mongodb://localhost:27017/chatapp");
 
 const ChatSchema = mongoose.Schema({
 	username: String,
-	msg: String
+	msg: String,
+	time: String
 });
 
 const ChatModel = mongoose.model("chat", ChatSchema);
@@ -38,7 +41,8 @@ io.on("connection", socket => {
 	socket.on('msg', msg => {
 		let message = new ChatModel({
 			username: socket.username,
-			msg: msg
+			msg: msg,
+			time: timenow
 		});
 
 		message.save((err, result) => {
